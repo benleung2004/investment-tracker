@@ -288,7 +288,7 @@ a,button{transition:all var(--tr);}
 
   <!-- CTA ROW -->
   <div class="cta-row">
-    <button class="btn-primary" onclick="calculateAllocation()">
+    <button class="btn-primary" onclick="recordMonthlyContribution()">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
       </svg>
@@ -298,6 +298,14 @@ a,button{transition:all var(--tr);}
       <span class="mb-label">每月</span>
       <span class="mb-val" id="monthlyLabel">HKD 5,000</span>
     </div>
+  </div>
+
+  <div class="panel" id="recordPanel" style="display:none;">
+    <div class="ph">
+      <span class="pht">月供記錄</span>
+      <span class="phm" id="recordSummary"></span>
+    </div>
+    <div id="recordList" style="display:grid;gap:.75rem;padding:0 var(--s4) var(--s4);"></div>
   </div>
 
   <!-- FX + STATUS -->
@@ -417,6 +425,7 @@ const FALLBACK = {
 };
 
 // State — use sessionStorage key as in-memory store
+const RECORD_KEY = 'monthlyContributionRecord';
 let S = {
   monthly: 5000,
   fxRate:  FX_FALLBACK,
@@ -426,7 +435,56 @@ let S = {
   apiKey: '',
   binId: '',
   lastRefresh: null,
+  record: [],
 };
+
+function loadRecord(){
+  try{
+    const raw = localStorage.getItem(RECORD_KEY);
+    S.record = raw ? JSON.parse(raw) : [];
+  } catch {
+    S.record = [];
+  }
+}
+
+function saveRecord(){
+  localStorage.setItem(RECORD_KEY, JSON.stringify(S.record));
+}
+
+function formatRecordDate(iso){
+  const d = new Date(iso);
+  return d.toLocaleString('zh-HK',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+
+function renderRecord(){
+  const panel = document.getElementById('recordPanel');
+  if(!S.record.length){
+    panel.style.display='none';
+    return;
+  }
+
+  const total = S.record.reduce((sum,item)=>sum+item.amount,0);
+  document.getElementById('recordSummary').textContent = `總共 ${S.record.length} 次，HKD ${total.toLocaleString()}`;
+
+  const list = S.record.map(item=>`
+    <div class="prow">
+      <div class="prtop">
+        <span style="font-weight:700;font-family:var(--fm);">HKD ${item.amount.toLocaleString()}</span>
+        <span class="gbadge fl" style="margin-left:.5rem;">${formatRecordDate(item.createdAt)}</span>
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('recordList').innerHTML = list;
+  panel.style.display='block';
+}
+
+function addMonthlyRecord(amount){
+  S.record.unshift({amount, createdAt: new Date().toISOString()});
+  if(S.record.length>20) S.record.length=20;
+  saveRecord();
+  renderRecord();
+}
 
 // ── TOAST ──
 function toast(msg, type='ok', dur=2800){
@@ -448,22 +506,23 @@ function toggleTheme(){
 
 // ── APP LAUNCH HELPERS ──
 function tryOpenApp(uri, fallback){
-  const isMobile = /iPad|iPhone|iPod|Android/.test(navigator.userAgent);
-  let appOpened = false;
-
-  const onHide = () => { appOpened = true; };
-  document.addEventListener('visibilitychange', onHide, {once:true});
-  document.addEventListener('pagehide', onHide, {once:true});
-
-  if(isMobile){
-    window.location.href = uri;
-  } else {
-    window.location.href = uri;
-  }
-
-  setTimeout(()=>{
-    if(!appOpened){ window.location.href = fallback; }
+  const now = Date.now();
+  const fallbackTimeout = setTimeout(()=>{
+    if(Date.now() - now < 1500){
+      window.location.href = fallback;
+    }
   }, 1200);
+
+  const clearFallback = () => { clearTimeout(fallbackTimeout); };
+  document.addEventListener('visibilitychange', clearFallback, {once:true});
+  window.addEventListener('pagehide', clearFallback, {once:true});
+
+  const link = document.createElement('a');
+  link.href = uri;
+  link.style.display = 'none';
+  document.body.appendChild(link);
+  link.click();
+  setTimeout(()=>{ document.body.removeChild(link); }, 1500);
 }
 
 // ── PERPLEXITY ──
@@ -475,6 +534,12 @@ function openPerplexity(e){
 // ── IBKR ──
 function openIBKR(){
   tryOpenApp('ibkr://', 'https://www.interactivebrokers.com.hk');
+}
+
+function recordMonthlyContribution(){
+  addMonthlyRecord(S.monthly);
+  toast(`已新增 HKD ${S.monthly.toLocaleString()} 月供記錄`);
+  calculateAllocation();
 }
 
 // ── FETCH ──
@@ -778,8 +843,10 @@ async function downloadCloud(){
 }
 
 // ── INIT ──
+loadRecord();
 if(new Date().getDate()===7) document.getElementById('reminder').style.display='flex';
 document.getElementById('monthlyLabel').textContent = `HKD ${S.monthly.toLocaleString()}`;
+renderRecord();
 
 // Set fallback FX immediately
 document.getElementById('fxRate').textContent = `1 USD = HKD ${S.fxRate.toFixed(4)}`;
