@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+html_content = r'''<!DOCTYPE html>
 <html lang="zh-HK" data-theme="dark">
 <head>
 <meta charset="UTF-8">
@@ -47,10 +47,11 @@ html{-webkit-text-size-adjust:none;-webkit-font-smoothing:antialiased;}
 body{min-height:100dvh;font-family:var(--fn);font-size:var(--text-sm);
   color:var(--tx);background:var(--bg);padding-bottom:env(safe-area-inset-bottom);}
 button{cursor:pointer;background:none;border:none;font:inherit;color:inherit;}
-input,textarea{font:inherit;color:inherit;background:none;}
+input{font:inherit;color:inherit;background:none;}
 a,button{transition:all var(--tr);}
 .app{max-width:480px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column;}
 
+/* TOPBAR */
 .topbar{position:sticky;top:0;z-index:100;background:var(--bg);
   border-bottom:1px solid var(--div);padding:var(--s3) var(--s4);
   display:flex;align-items:center;gap:var(--s3);
@@ -64,8 +65,10 @@ a,button{transition:all var(--tr);}
 .ibtn:hover{color:var(--tx);background:var(--sf2);}
 .ibtn:active{transform:scale(.94);}
 
+/* MAIN */
 .main{flex:1;padding:var(--s4);display:flex;flex-direction:column;gap:var(--s4);}
 
+/* PERPLEXITY */
 .pxcard{background:linear-gradient(135deg,#1e2535,#1a2040);
   border:1px solid #2a3870;border-radius:var(--r-lg);padding:var(--s3) var(--s4);
   display:flex;align-items:center;gap:var(--s3);text-decoration:none;color:var(--tx);}
@@ -77,10 +80,12 @@ a,button{transition:all var(--tr);}
 .pxtxt strong{display:block;font-size:var(--text-xs);font-weight:700;}
 .pxtxt span{font-size:var(--text-xs);color:var(--mu);}
 
+/* REMINDER */
 .reminder{background:var(--gob);border:1px solid var(--go);border-radius:var(--r-md);
   padding:var(--s3) var(--s4);display:flex;align-items:center;gap:var(--s3);
   font-size:var(--text-xs);color:var(--go);}
 
+/* CTA row */
 .cta-row{display:grid;grid-template-columns:1fr auto;gap:var(--s3);}
 .btn-primary{padding:var(--s4);background:var(--pr);color:#fff;font-weight:700;
   font-size:var(--text-base);border-radius:var(--r-lg);display:flex;align-items:center;
@@ -93,15 +98,7 @@ a,button{transition:all var(--tr);}
 .mb-label{font-size:var(--text-xs);color:var(--mu);}
 .mb-val{font-size:var(--text-sm);font-weight:700;font-family:var(--fm);color:var(--tx);}
 
-/* AI BUTTON */
-.btn-ai{width:100%;padding:var(--s3) var(--s4);border-radius:var(--r-lg);
-  display:flex;align-items:center;justify-content:center;gap:var(--s2);
-  font-size:var(--text-sm);font-weight:700;
-  background:linear-gradient(135deg,#1e2535,#1a2040);
-  border:1px solid #2a3870;color:var(--tx);}
-.btn-ai:hover{border-color:var(--pr);box-shadow:0 0 14px rgba(59,130,246,.2);}
-.btn-ai:active{transform:scale(.98);}
-
+/* PANEL */
 .panel{background:var(--sf);border:1px solid var(--bor);border-radius:var(--r-lg);
   overflow:hidden;box-shadow:var(--sh);}
 .ph{padding:var(--s3) var(--s4);border-bottom:1px solid var(--div);
@@ -109,6 +106,7 @@ a,button{transition:all var(--tr);}
 .pht{font-size:var(--text-xs);font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--mu);}
 .phm{font-size:var(--text-xs);color:var(--fa);font-family:var(--fm);}
 
+/* FX */
 .fxrow{padding:var(--s3) var(--s4);display:flex;align-items:center;justify-content:space-between;}
 .fxlbl{font-size:var(--text-xs);color:var(--mu);}
 .fxval{font-size:var(--text-sm);font-weight:700;font-family:var(--fm);color:var(--go);}
@@ -119,6 +117,7 @@ a,button{transition:all var(--tr);}
 .stxt{font-size:var(--text-xs);color:var(--fa);}
 .stime{font-size:var(--text-xs);color:var(--fa);font-family:var(--fm);margin-left:auto;}
 
+/* ALLOC ROW */
 .arow{padding:var(--s3) var(--s4);border-bottom:1px solid var(--div);
   display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:var(--s3);}
 .arow:last-child{border-bottom:none;}
@@ -138,6 +137,7 @@ a,button{transition:all var(--tr);}
   padding:2px 8px;border-radius:var(--r-full);background:var(--prhl);
   color:var(--pr);min-width:40px;text-align:center;}
 
+/* TOTAL PNL */
 .pnl-box{background:var(--sf);border:1px solid var(--bor);border-radius:var(--r-lg);
   padding:var(--s4);display:flex;flex-direction:column;gap:var(--s2);}
 .pnl-title{font-size:var(--text-xs);font-weight:700;text-transform:uppercase;
@@ -151,6 +151,7 @@ a,button{transition:all var(--tr);}
 .pnl-pct.fl{background:var(--sfo);color:var(--mu);}
 .pnl-hkd{font-size:var(--text-xs);color:var(--mu);font-family:var(--fm);}
 
+/* PORTFOLIO */
 .prow{padding:var(--s3) var(--s4);border-bottom:1px solid var(--div);
   display:flex;flex-direction:column;gap:var(--s1);}
 .prow:last-child{border-bottom:none;}
@@ -163,6 +164,7 @@ a,button{transition:all var(--tr);}
 .gbadge.dn{background:var(--reb);color:var(--re);}
 .gbadge.fl{background:var(--sfo);color:var(--mu);}
 
+/* IB BTN */
 .btn-ib{width:100%;padding:var(--s3) var(--s4);background:var(--sf);
   border:1px solid var(--bor);border-radius:var(--r-lg);
   display:flex;align-items:center;justify-content:center;gap:var(--s2);
@@ -171,10 +173,11 @@ a,button{transition:all var(--tr);}
 .btn-ib:active{transform:scale(.98);}
 .ibdot{width:8px;height:8px;border-radius:50%;background:#e8372a;flex-shrink:0;}
 
+/* SECTION LABEL */
 .slbl{font-size:var(--text-xs);font-weight:700;text-transform:uppercase;
   letter-spacing:.08em;color:var(--fa);}
 
-/* MODALS */
+/* MODAL */
 .modal-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.75);
   backdrop-filter:blur(4px);align-items:flex-end;justify-content:center;}
 .modal-overlay.open{display:flex;}
@@ -187,12 +190,11 @@ a,button{transition:all var(--tr);}
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .modal-handle{width:40px;height:4px;background:var(--bor);border-radius:var(--r-full);margin:0 auto;}
 .modal-title{font-size:var(--text-lg);font-weight:700;text-align:center;}
-.modal-sub{font-size:var(--text-xs);color:var(--mu);text-align:center;line-height:1.6;}
 .ig{display:flex;flex-direction:column;gap:var(--s2);}
 .ilbl{font-size:var(--text-xs);font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--mu);}
 .ifield{padding:var(--s3) var(--s4);background:var(--sf2);
   border:1px solid var(--bor);border-radius:var(--r-md);
-  font-size:var(--text-sm);font-family:var(--fm);font-weight:600;width:100%;color:var(--tx);}
+  font-size:var(--text-base);font-family:var(--fm);font-weight:600;width:100%;color:var(--tx);}
 .ifield:focus{outline:none;border-color:var(--pr);}
 .pgrid{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3);}
 .btn-save{padding:var(--s4);background:var(--pr);color:#fff;
@@ -200,40 +202,20 @@ a,button{transition:all var(--tr);}
 .btn-save:hover{background:var(--prh);}
 .btn-save:active{transform:scale(.98);}
 .btn-cancel{padding:var(--s3);color:var(--mu);font-size:var(--text-sm);width:100%;text-align:center;}
+.btn-danger{padding:var(--s3) var(--s4);color:var(--re);font-size:var(--text-sm);
+  border:1px solid var(--bor);border-radius:var(--r-md);width:100%;text-align:center;}
+.btn-danger:hover{background:var(--reb);}
 
-/* AI PROMPT MODAL */
-.ai-modal{background:var(--sf);border:1px solid var(--bor);
-  border-radius:var(--r-xl) var(--r-xl) 0 0;
-  padding:var(--s5) var(--s4);
-  padding-bottom:calc(var(--s5) + env(safe-area-inset-bottom));
-  width:100%;max-width:480px;display:flex;flex-direction:column;gap:var(--s4);
-  animation:slideUp .25s cubic-bezier(0.16,1,0.3,1);max-height:90dvh;}
-.prompt-box{background:var(--sf2);border:1px solid var(--bor);border-radius:var(--r-lg);
-  padding:var(--s4);font-size:var(--text-xs);font-family:var(--fm);line-height:1.7;
-  color:var(--tx);flex:1;overflow-y:auto;white-space:pre-wrap;word-break:break-word;
-  min-height:200px;max-height:360px;cursor:text;user-select:all;}
-.ai-actions{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3);}
-.btn-copy{padding:var(--s3) var(--s4);background:var(--pr);color:#fff;
-  font-weight:700;border-radius:var(--r-lg);font-size:var(--text-sm);
-  display:flex;align-items:center;justify-content:center;gap:var(--s2);}
-.btn-copy:hover{background:var(--prh);}
-.btn-copy:active{transform:scale(.98);}
-.btn-open-px{padding:var(--s3) var(--s4);background:var(--sf2);color:var(--tx);
-  font-weight:700;border-radius:var(--r-lg);font-size:var(--text-sm);
-  border:1px solid var(--bor);display:flex;align-items:center;justify-content:center;gap:var(--s2);}
-.btn-open-px:hover{border-color:var(--pr);color:var(--pr);}
-.btn-open-px:active{transform:scale(.98);}
-.hint-row{display:flex;align-items:center;gap:var(--s2);font-size:var(--text-xs);color:var(--fa);}
-
-/* CLOUD */
-.cloud-box{background:var(--sf2);border:1px solid var(--bor);border-radius:var(--r-lg);
+/* CLOUD PANEL */
+.cloud-box{background:var(--sf);border:1px solid var(--bor);border-radius:var(--r-lg);
   padding:var(--s4);display:flex;flex-direction:column;gap:var(--s3);}
+.cloud-title{font-size:var(--text-xs);font-weight:700;text-transform:uppercase;
+  letter-spacing:.06em;color:var(--mu);display:flex;align-items:center;gap:var(--s2);}
 .cloud-row{display:grid;grid-template-columns:1fr auto;gap:var(--s2);align-items:center;}
 .cloud-btn{padding:var(--s2) var(--s4);border-radius:var(--r-md);font-size:var(--text-xs);
   font-weight:700;background:var(--prhl);color:var(--pr);border:1px solid var(--bor);}
 .cloud-btn:hover{background:var(--pr);color:#fff;}
 .cloud-status{font-size:var(--text-xs);color:var(--fa);font-family:var(--fm);}
-.cloud-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--s2);}
 
 /* TOAST */
 .toast{position:fixed;bottom:calc(var(--s6) + env(safe-area-inset-bottom));
@@ -245,7 +227,6 @@ a,button{transition:all var(--tr);}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 .toast.ok{border-color:var(--gr);color:var(--gr);}
 .toast.err{border-color:var(--re);color:var(--re);}
-.toast.info{border-color:var(--pr);color:var(--pr);}
 
 @keyframes spin{to{transform:rotate(360deg)}}
 .spinning{animation:spin .8s linear infinite;}
@@ -254,7 +235,7 @@ a,button{transition:all var(--tr);}
 <body>
 <div class="app">
 
-<!-- TOP BAR -->
+<!-- TOPBAR -->
 <div class="topbar">
   <div class="tlogo">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -288,7 +269,7 @@ a,button{transition:all var(--tr);}
 <div class="main">
 
   <!-- PERPLEXITY -->
-  <a class="pxcard" href="https://www.perplexity.ai/search/1d9c32ef-78a9-4b2c-bcf7-3b269301bdcb" onclick="openPerplexity(event)" target="_blank" rel="noopener noreferrer">
+  <a class="pxcard" href="perplexity://" onclick="openPerplexity(event)" target="_blank" rel="noopener noreferrer">
     <div class="pxicon">🤖</div>
     <div class="pxtxt">
       <strong>查閱月供 AI 投資建議</strong>
@@ -319,17 +300,6 @@ a,button{transition:all var(--tr);}
     </div>
   </div>
 
-  <!-- AI QUERY BUTTON -->
-  <button class="btn-ai" onclick="openAIPrompt()">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-    </svg>
-    查詢 AI 現況
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--mu)">
-      <polyline points="9 18 15 12 9 6"/>
-    </svg>
-  </button>
-
   <!-- FX + STATUS -->
   <div class="panel">
     <div class="fxrow">
@@ -347,6 +317,8 @@ a,button{transition:all var(--tr);}
   <div id="allocSec" style="display:none;flex-direction:column;gap:var(--s4)">
     <div class="slbl">📊 本月月供分配</div>
     <div class="panel" id="allocPanel"></div>
+
+    <!-- IB BUTTON -->
     <button class="btn-ib" onclick="openIBKR()">
       <div class="ibdot"></div>
       開啟 IBKR 落單
@@ -355,6 +327,8 @@ a,button{transition:all var(--tr);}
         <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
       </svg>
     </button>
+
+    <!-- TOTAL PNL BOX -->
     <div class="pnl-box" id="pnlBox" style="display:none">
       <div class="pnl-title">📈 總盈虧</div>
       <div class="pnl-main">
@@ -374,215 +348,208 @@ a,button{transition:all var(--tr);}
 </div>
 </div>
 
-<!-- AI PROMPT MODAL -->
-<div class="modal-overlay" id="aiModal" onclick="closeAIOnOverlay(event)">
-  <div class="ai-modal">
-    <div class="modal-handle"></div>
-    <div style="text-align:center">
-      <div class="modal-title">🤖 查詢 AI 現況</div>
-      <div class="modal-sub" style="margin-top:var(--s2)">複製以下 prompt，貼入 Perplexity 或任何 AI</div>
-    </div>
-    <div class="prompt-box" id="aiPromptBox"></div>
-    <div class="hint-row">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-      </svg>
-      長按文字可選取全部，或按下面「複製」按鈕
-    </div>
-    <div class="ai-actions">
-      <button class="btn-copy" onclick="copyPrompt()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-        </svg>
-        複製 Prompt
-      </button>
-      <button class="btn-open-px" onclick="copyAndOpenPerplexity()">
-        🤖 開 Perplexity
-      </button>
-    </div>
-    <button class="btn-cancel" onclick="closeAIModal()">關閉</button>
-  </div>
-</div>
-
 <!-- SETTINGS MODAL -->
 <div class="modal-overlay" id="settingsModal" onclick="closeOnOverlay(event)">
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title">⚙️ 設定</div>
+
+    <!-- MONTHLY -->
     <div class="ig">
       <label class="ilbl">每月供款 (HKD)</label>
       <input class="ifield" type="number" id="monthlyInput" placeholder="5000" inputmode="numeric">
     </div>
+
+    <!-- PORTFOLIO -->
     <div style="display:flex;flex-direction:column;gap:var(--s2)">
       <div class="slbl">持倉記錄（計算盈虧）</div>
       <div class="pgrid" id="portInputs"></div>
     </div>
+
+    <!-- CLOUD SYNC -->
     <div style="display:flex;flex-direction:column;gap:var(--s2)">
       <div class="slbl">☁️ 雲端備份 (JSONBin.io)</div>
       <div class="cloud-box">
-        <div class="ig">
-          <label class="ilbl">API Key</label>
-          <input class="ifield" type="password" id="apiKeyInput" placeholder="$2a$10$...">
-          <button style="font-size:var(--text-xs);color:var(--mu);text-align:left;padding:0" onclick="toggleApiVis()">👁 顯示/隱藏</button>
+        <div>
+          <div class="cloud-title">API Key</div>
+          <input class="ifield" type="text" id="apiKeyInput" placeholder="$2a$10$..." style="margin-top:var(--s2)">
         </div>
-        <div class="ig">
-          <label class="ilbl">Bin ID <span style="font-weight:400;color:var(--fa);text-transform:none">(首次留空，自動建立)</span></label>
-          <input class="ifield" type="text" id="binIdInput" placeholder="64abc...">
+        <div>
+          <div class="cloud-title">Bin ID <span style="font-weight:400;color:var(--fa)">(首次留空，自動建立)</span></div>
+          <input class="ifield" type="text" id="binIdInput" placeholder="64abc..." style="margin-top:var(--s2)">
         </div>
         <div class="cloud-row">
           <span class="cloud-status" id="cloudStatus">未連接</span>
-          <button class="cloud-btn" onclick="testCloud()">測試</button>
+          <button class="cloud-btn" onclick="testCloud()">測試連接</button>
         </div>
-        <div class="cloud-grid">
-          <button class="cloud-btn" onclick="uploadCloud()">☁️ 上傳備份</button>
-          <button class="cloud-btn" onclick="downloadCloud()">⬇️ 下載還原</button>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--s2)">
+          <button class="cloud-btn" onclick="uploadCloud()">☁️ 上傳數據</button>
+          <button class="cloud-btn" onclick="downloadCloud()">⬇️ 下載數據</button>
         </div>
       </div>
     </div>
+
     <button class="btn-save" onclick="saveSettings()">儲存</button>
     <button class="btn-cancel" onclick="closeSettings()">取消</button>
   </div>
 </div>
 
+<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script>
 const PERPLEXITY_URL = 'https://www.perplexity.ai/search/1d9c32ef-78a9-4b2c-bcf7-3b269301bdcb';
-const DEFAULT_API_KEY = '$2a$10$I5ojo2wfoRU2QkNjw7gSv.SnyMJRxP87d7vouHKX.O0AFpQEjwE/K';
 const FX_FALLBACK = 7.84;
 
 const ALLOCS = [
-  {ticker:'NVDA', name:'Nvidia Corp',        pct:.30, color:'#76b900'},
-  {ticker:'QQQM', name:'Invesco Nasdaq 100', pct:.40, color:'#3b82f6'},
-  {ticker:'VOO',  name:'Vanguard S&P 500',   pct:.20, color:'#8b5cf6'},
-  {ticker:'QLD',  name:'ProShares 2x QQQ',  pct:.10, color:'#f59e0b'},
+  {ticker:'NVDA', name:'Nvidia Corp',        pct:.30, color:'#76b900', monthly:1500},
+  {ticker:'QQQM', name:'Invesco Nasdaq 100', pct:.40, color:'#3b82f6', monthly:2000},
+  {ticker:'VOO',  name:'Vanguard S&P 500',   pct:.20, color:'#8b5cf6', monthly:1000},
+  {ticker:'QLD',  name:'ProShares 2x QQQ',  pct:.10, color:'#f59e0b', monthly:500},
 ];
 
-const FALLBACK_DATA = {
+// Fallback data (May 5 2026 close)
+const FALLBACK = {
   NVDA: {price:198.34, change:-0.14, changePct:-0.07},
   QQQM: {price:477.54, change:+2.64, changePct:+0.56},
   VOO:  {price:541.20, change:+1.94, changePct:+0.36},
   QLD:  {price:105.44, change:-0.33, changePct:-0.31},
 };
 
+// State — use sessionStorage key as in-memory store
 let S = {
-  monthly:   5000,
-  fxRate:    FX_FALLBACK,
-  data:      JSON.parse(JSON.stringify(FALLBACK_DATA)),
-  portfolio: {NVDA:0, QQQM:0, VOO:0, QLD:0},
-  costBasis: {NVDA:0, QQQM:0, VOO:0, QLD:0},
-  apiKey:    DEFAULT_API_KEY,
-  binId:     '',
+  monthly: 5000,
+  fxRate:  FX_FALLBACK,
+  data:    JSON.parse(JSON.stringify(FALLBACK)),
+  portfolio:  {NVDA:0, QQQM:0, VOO:0, QLD:0},
+  costBasis:  {NVDA:0, QQQM:0, VOO:0, QLD:0},
+  apiKey: '',
+  binId: '',
   lastRefresh: null,
 };
 
 // ── TOAST ──
-function toast(msg, type='ok', dur=3000){
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.className=`toast show ${type}`;
-  clearTimeout(t._t);
-  t._t=setTimeout(()=>{ t.className='toast'; }, dur);
+function toast(msg, type='ok', dur=2800){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = `toast show ${type}`;
+  setTimeout(()=>{ t.className = 'toast'; }, dur);
 }
 
 // ── THEME ──
 function toggleTheme(){
-  const h=document.documentElement;
-  const n=h.getAttribute('data-theme')==='dark'?'light':'dark';
-  h.setAttribute('data-theme',n);
-  document.getElementById('themeIcon').innerHTML = n==='dark'
+  const h = document.documentElement;
+  const next = h.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  h.setAttribute('data-theme', next);
+  const icon = document.getElementById('themeIcon');
+  icon.innerHTML = next==='dark'
     ? '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>'
     : '<circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>';
 }
 
-function toggleApiVis(){
-  const f=document.getElementById('apiKeyInput');
-  f.type=f.type==='password'?'text':'password';
+// ── APP LAUNCH HELPERS ──
+function tryOpenApp(uri, fallback){
+  const isMobile = /iPad|iPhone|iPod|Android/.test(navigator.userAgent);
+  const timeout = setTimeout(()=>{
+    window.location.href = fallback;
+  }, 1400);
+
+  if(isMobile){
+    const iframe = document.createElement('iframe');
+    iframe.style.display='none';
+    iframe.src = uri;
+    document.body.appendChild(iframe);
+    setTimeout(()=>{ document.body.removeChild(iframe); }, 1600);
+  } else {
+    window.location.href = uri;
+  }
+
+  return timeout;
 }
 
 // ── PERPLEXITY ──
 function openPerplexity(e){
   e.preventDefault();
-  if(/iPad|iPhone|iPod/.test(navigator.userAgent)){
-    const fr=document.createElement('iframe');
-    fr.style.display='none'; fr.src='perplexity://';
-    document.body.appendChild(fr);
-    setTimeout(()=>{ document.body.removeChild(fr); window.open(PERPLEXITY_URL,'_blank'); },1200);
-  } else { window.open(PERPLEXITY_URL,'_blank'); }
+  tryOpenApp('perplexity://', PERPLEXITY_URL);
 }
 
 // ── IBKR ──
 function openIBKR(){
-  if(/iPad|iPhone|iPod/.test(navigator.userAgent)){
-    const fr=document.createElement('iframe');
-    fr.style.display='none'; fr.src='ibkr://';
-    document.body.appendChild(fr);
-    setTimeout(()=>{ document.body.removeChild(fr); window.open('https://www.interactivebrokers.com.hk','_blank'); },1200);
-  } else { window.open('https://www.interactivebrokers.com.hk','_blank'); }
+  tryOpenApp('ibkr://', 'https://www.interactivebrokers.com.hk');
 }
 
 // ── FETCH ──
-async function fetchYahoo(sym){
-  const url=`https://query1.finance.yahoo.com/v8/finance/chart/${sym}?interval=1d&range=1d`;
-  const proxy=`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-  const r=await fetch(proxy,{signal:AbortSignal.timeout(9000)});
-  const d=await r.json();
-  const meta=JSON.parse(d.contents)?.chart?.result?.[0]?.meta;
+async function fetchYahoo(symbol){
+  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d`;
+  const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+  const r = await fetch(proxy, {signal:AbortSignal.timeout(9000)});
+  const d = await r.json();
+  const meta = JSON.parse(d.contents)?.chart?.result?.[0]?.meta;
   if(!meta) return null;
-  const price=meta.regularMarketPrice;
-  const prev=meta.chartPreviousClose||meta.previousClose||price;
+  const price = meta.regularMarketPrice;
+  const prev  = meta.chartPreviousClose || meta.previousClose || price;
   return {price, change:+(price-prev).toFixed(2), changePct:+((price-prev)/prev*100).toFixed(2)};
 }
 
 async function refreshAll(){
-  const icon=document.getElementById('refreshIcon');
+  const icon = document.getElementById('refreshIcon');
   icon.classList.add('spinning');
   setStatus('正在獲取實時數據...', false);
-  const syms=['NVDA','QQQM','VOO','QLD','HKD=X'];
-  const res=await Promise.allSettled(syms.map(s=>fetchYahoo(s)));
+
+  const syms = ['NVDA','QQQM','VOO','QLD','HKD=X'];
+  const res  = await Promise.allSettled(syms.map(s=>fetchYahoo(s)));
   syms.forEach((sym,i)=>{
-    if(res[i].status==='fulfilled'&&res[i].value){
-      const v=res[i].value;
+    if(res[i].status==='fulfilled' && res[i].value){
+      const v = res[i].value;
       if(sym==='HKD=X'){
-        const r=+(1/v.price).toFixed(4);
-        if(r>=7.75&&r<=7.90) S.fxRate=r;
-      } else { S.data[sym]=v; }
+        const r = +(1/v.price).toFixed(4);
+        if(r>=7.75 && r<=7.90) S.fxRate = r;
+      } else { S.data[sym] = v; }
     }
   });
-  document.getElementById('fxRate').textContent=`1 USD = HKD ${S.fxRate.toFixed(4)}`;
-  const now=new Date();
-  S.lastRefresh=now.toLocaleString('zh-HK',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
-  setStatus('上次更新', true);
-  document.getElementById('stime').textContent=S.lastRefresh;
+
+  document.getElementById('fxRate').textContent = `1 USD = HKD ${S.fxRate.toFixed(4)}`;
+  const now = new Date();
+  S.lastRefresh = now.toLocaleString('zh-HK',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+  setStatus(`上次更新`, true);
+  document.getElementById('stime').textContent = S.lastRefresh;
   icon.classList.remove('spinning');
   calculateAllocation();
   renderPortfolio();
   renderPNL();
 }
 
-function setStatus(msg,ok){
-  document.getElementById('stxt').textContent=msg;
-  document.getElementById('sdot').style.background=ok?'var(--gr)':'var(--go)';
+function setStatus(msg, ok){
+  document.getElementById('stxt').textContent = msg;
+  document.getElementById('sdot').style.background = ok ? 'var(--gr)' : 'var(--go)';
 }
 
-function chgBadge(change,pct){
+// ── CHANGE BADGE ──
+function chgBadge(change, pct){
   if(change==null) return '';
   const s=change>=0?'+':'', cl=change>0?'up':change<0?'dn':'fl';
   return `<span class="schg ${cl}">${s}${change.toFixed(2)} (${s}${pct.toFixed(2)}%)</span>`;
 }
 
+// ── ALLOCATION ──
 function calculateAllocation(){
-  const usdTotal=S.monthly/S.fxRate;
-  let html=`<div class="ph">
+  const usdTotal = S.monthly / S.fxRate;
+  // compute each stock's monthly HKD amounts from fixed monthly values
+  const months = {NVDA:1500, QQQM:2000, VOO:1000, QLD:500};
+
+  let html = `<div class="ph">
     <span class="pht">月供分配</span>
     <span class="phm">HKD ${S.monthly.toLocaleString()} ≈ USD ${usdTotal.toFixed(0)}</span>
   </div>`;
+
   for(const a of ALLOCS){
-    const hkdAmt=S.monthly*a.pct, usdAmt=hkdAmt/S.fxRate;
-    const d=S.data[a.ticker], pr=d?.price;
-    const sh=pr?(usdAmt/pr).toFixed(4):'...', ps=pr?`$${pr.toFixed(2)}`:'—';
-    const cb=d?chgBadge(d.change,d.changePct):'';
-    html+=`<div class="arow">
+    const hkdAmt = S.monthly * a.pct;
+    const usdAmt = hkdAmt / S.fxRate;
+    const d  = S.data[a.ticker];
+    const pr = d?.price;
+    const sh = pr ? (usdAmt/pr).toFixed(4) : '...';
+    const ps = pr ? `$${pr.toFixed(2)}` : '—';
+    const cb = d ? chgBadge(d.change, d.changePct) : '';
+    html += `<div class="arow">
       <div>
         <div class="stk" style="color:${a.color}">${a.ticker}</div>
         <div class="snm">${a.name}</div>
@@ -596,15 +563,17 @@ function calculateAllocation(){
       <div class="abadge">${(a.pct*100).toFixed(0)}%</div>
     </div>`;
   }
-  document.getElementById('allocPanel').innerHTML=html;
-  document.getElementById('allocSec').style.display='flex';
-  document.getElementById('monthlyLabel').textContent=`HKD ${S.monthly.toLocaleString()}`;
+
+  document.getElementById('allocPanel').innerHTML = html;
+  document.getElementById('allocSec').style.display = 'flex';
+  document.getElementById('monthlyLabel').textContent = `HKD ${S.monthly.toLocaleString()}`;
   renderPNL();
 }
 
+// ── PNL BOX ──
 function renderPNL(){
-  const hasPf=Object.values(S.portfolio).some(v=>v>0);
-  const box=document.getElementById('pnlBox');
+  const hasPf = Object.values(S.portfolio).some(v=>v>0);
+  const box = document.getElementById('pnlBox');
   if(!hasPf){ box.style.display='none'; return; }
   let totalCost=0, totalVal=0;
   for(const a of ALLOCS){
@@ -615,18 +584,19 @@ function renderPNL(){
   }
   const g=totalVal-totalCost, gp=totalCost>0?g/totalCost*100:0;
   const sign=g>=0?'+':'', cls=g>0?'up':g<0?'dn':'fl';
-  document.getElementById('pnlUsd').textContent=`${sign}USD ${g.toFixed(2)}`;
-  document.getElementById('pnlUsd').className=`pnl-usd ${g>0?'gain':g<0?'loss':'neut'}`;
-  document.getElementById('pnlPct').textContent=`${sign}${gp.toFixed(2)}%`;
-  document.getElementById('pnlPct').className=`pnl-pct ${cls}`;
-  document.getElementById('pnlHkd').textContent=`≈ ${sign}HKD ${(g*S.fxRate).toFixed(0)}`;
+  document.getElementById('pnlUsd').textContent  = `${sign}USD ${g.toFixed(2)}`;
+  document.getElementById('pnlUsd').className    = `pnl-usd ${g>0?'gain':g<0?'loss':'neut'}`;
+  document.getElementById('pnlPct').textContent  = `${sign}${gp.toFixed(2)}%`;
+  document.getElementById('pnlPct').className    = `pnl-pct ${cls}`;
+  document.getElementById('pnlHkd').textContent  = `≈ ${sign}HKD ${(g*S.fxRate).toFixed(0)}`;
   box.style.display='block';
 }
 
+// ── PORTFOLIO ──
 function renderPortfolio(){
-  const sec=document.getElementById('portSec');
+  const sec = document.getElementById('portSec');
   if(!Object.values(S.portfolio).some(v=>v>0)){ sec.style.display='none'; return; }
-  let html='<div class="ph"><span class="pht">持倉概覽</span></div>';
+  let html = '<div class="ph"><span class="pht">持倉概覽</span></div>';
   for(const a of ALLOCS){
     const sh=S.portfolio[a.ticker]||0; if(!sh) continue;
     const cost=S.costBasis[a.ticker]||0;
@@ -650,136 +620,15 @@ function renderPortfolio(){
       </div>
     </div>`;
   }
-  document.getElementById('portPanel').innerHTML=html;
-  sec.style.display='block';
-}
-
-// ── AI PROMPT ──
-function buildPrompt(){
-  const now = new Date().toLocaleDateString('zh-HK',{year:'numeric',month:'long',day:'numeric'});
-  const fx = S.fxRate.toFixed(4);
-
-  // portfolio lines
-  let pfLines = '';
-  let totalCostUSD = 0, totalValUSD = 0;
-  const hasPf = Object.values(S.portfolio).some(v=>v>0);
-
-  for(const a of ALLOCS){
-    const sh = S.portfolio[a.ticker]||0;
-    const cost = S.costBasis[a.ticker]||0;
-    const pr = S.data[a.ticker]?.price || 0;
-    const chg = S.data[a.ticker]?.change ?? 0;
-    const chgPct = S.data[a.ticker]?.changePct ?? 0;
-    const val = pr * sh;
-    const g = val - cost * sh;
-    const gp = cost>0 ? (pr-cost)/cost*100 : 0;
-    const sign = chg>=0?'+':'';
-    const gsign = g>=0?'+':'';
-    totalCostUSD += cost*sh;
-    totalValUSD  += val;
-    pfLines += `  • ${a.ticker} (${a.name})\n`;
-    pfLines += `    現價：$${pr.toFixed(2)}  今日：${sign}$${chg.toFixed(2)} (${sign}${chgPct.toFixed(2)}%)\n`;
-    if(sh>0){
-      pfLines += `    持股：${sh} 股  平均成本：$${cost.toFixed(2)}/股\n`;
-      pfLines += `    市值：USD ${val.toFixed(2)} ≈ HKD ${(val*S.fxRate).toFixed(0)}\n`;
-      pfLines += `    盈虧：${gsign}USD ${g.toFixed(2)} (${gsign}${gp.toFixed(2)}%)\n`;
-    } else {
-      pfLines += `    持股：尚未記錄\n`;
-    }
-    pfLines += '\n';
-  }
-
-  const totalG = totalValUSD - totalCostUSD;
-  const totalGp = totalCostUSD>0 ? totalG/totalCostUSD*100 : 0;
-  const tsign = totalG>=0?'+':'';
-  const monthlyUSD = (S.monthly/S.fxRate).toFixed(0);
-
-  const portfolioSummary = hasPf
-    ? `總持倉市值：USD ${totalValUSD.toFixed(2)} ≈ HKD ${(totalValUSD*S.fxRate).toFixed(0)}
-總投入成本：USD ${totalCostUSD.toFixed(2)} ≈ HKD ${(totalCostUSD*S.fxRate).toFixed(0)}
-總盈虧：${tsign}USD ${totalG.toFixed(2)} (${tsign}${totalGp.toFixed(2)%1===0?totalGp.toFixed(0):totalGp.toFixed(2)}%)`
-    : `（持倉資料尚未輸入，請在 App 設定中填寫）`;
-
-  return `你好，我係一個香港投資者，現在係 ${now}。
-我每個月定期月供以下美股 ETF 組合，請分析我的持倉現況，並根據當前市場情況給予建議。
-
-═══════════════════════════════
-📋 我的月供計劃
-═══════════════════════════════
-每月供款：HKD ${S.monthly.toLocaleString()} ≈ USD ${monthlyUSD}
-USD/HKD 匯率：${fx}
-
-分配比例：
-  • NVDA（Nvidia）：30% → HKD ${(S.monthly*0.3).toFixed(0)}／月
-  • QQQM（Invesco Nasdaq 100 ETF）：40% → HKD ${(S.monthly*0.4).toFixed(0)}／月
-  • VOO（Vanguard S&P 500 ETF）：20% → HKD ${(S.monthly*0.2).toFixed(0)}／月
-  • QLD（ProShares 2x Nasdaq �槓桿 ETF）：10% → HKD ${(S.monthly*0.1).toFixed(0)}／月
-
-═══════════════════════════════
-📈 各股現況（實時數據）
-═══════════════════════════════
-${pfLines}
-═══════════════════════════════
-💼 持倉總覽
-═══════════════════════════════
-${portfolioSummary}
-
-═══════════════════════════════
-❓ 請幫我分析以下問題
-═══════════════════════════════
-1. 根據當前市場走勢（科技股、AI板塊、宏觀環境），我現有的 NVDA/QQQM/VOO/QLD 組合是否仍然合適？
-2. 目前比例（30/40/20/10）有冇需要調整？例如減少 NVDA 集中度，或者調整槓桿 QLD 比例？
-3. QLD 作為 2x 槓桿 ETF，適合我長期月供策略嗎？有冇更好的替代選擇？
-4. 現時市場有冇特別風險需要注意（例如加息、衰退預期、地緣政治）？
-5. 下個月月供日（每月 7 號）應該繼續照計劃入錢，還是考慮暫停或調整？
-
-請用中文（繁體）回答，盡量具體實際，唔需要免責聲明。`;
-}
-
-function openAIPrompt(){
-  const prompt = buildPrompt();
-  document.getElementById('aiPromptBox').textContent = prompt;
-  document.getElementById('aiModal').classList.add('open');
-}
-function closeAIModal(){ document.getElementById('aiModal').classList.remove('open'); }
-function closeAIOnOverlay(e){ if(e.target===e.currentTarget) closeAIModal(); }
-
-async function copyPrompt(){
-  const txt = document.getElementById('aiPromptBox').textContent;
-  try{
-    await navigator.clipboard.writeText(txt);
-    toast('Prompt 已複製！貼入任何 AI ✓');
-  } catch(e){
-    // fallback: select text
-    const box = document.getElementById('aiPromptBox');
-    const sel = window.getSelection();
-    const range = document.createRange();
-    range.selectNodeContents(box);
-    sel.removeAllRanges();
-    sel.addRange(range);
-    toast('請長按選取後複製','info');
-  }
-}
-
-async function copyAndOpenPerplexity(){
-  const txt = document.getElementById('aiPromptBox').textContent;
-  try{ await navigator.clipboard.writeText(txt); } catch(e){}
-  toast('已複製！正在開啟 Perplexity...','info');
-  setTimeout(()=>{
-    if(/iPad|iPhone|iPod/.test(navigator.userAgent)){
-      const fr=document.createElement('iframe');
-      fr.style.display='none'; fr.src='perplexity://';
-      document.body.appendChild(fr);
-      setTimeout(()=>{ document.body.removeChild(fr); window.open('https://www.perplexity.ai','_blank'); },1200);
-    } else { window.open('https://www.perplexity.ai','_blank'); }
-  },500);
+  document.getElementById('portPanel').innerHTML = html;
+  sec.style.display = 'block';
 }
 
 // ── SETTINGS ──
 function openSettings(){
-  document.getElementById('monthlyInput').value=S.monthly;
-  document.getElementById('apiKeyInput').value=S.apiKey;
-  document.getElementById('binIdInput').value=S.binId;
+  document.getElementById('monthlyInput').value = S.monthly;
+  document.getElementById('apiKeyInput').value  = S.apiKey;
+  document.getElementById('binIdInput').value   = S.binId;
   let h='';
   for(const a of ALLOCS){
     h+=`<div class="ig">
@@ -791,25 +640,24 @@ function openSettings(){
       <input class="ifield" type="number" id="c_${a.ticker}" value="${S.costBasis[a.ticker]||''}" placeholder="0.00" step="0.01" inputmode="decimal">
     </div>`;
   }
-  document.getElementById('portInputs').innerHTML=h;
-  updateCloudStatus();
+  document.getElementById('portInputs').innerHTML = h;
   document.getElementById('settingsModal').classList.add('open');
+  updateCloudStatus();
 }
 function closeSettings(){ document.getElementById('settingsModal').classList.remove('open'); }
 function closeOnOverlay(e){ if(e.target===e.currentTarget) closeSettings(); }
+
 function saveSettings(){
-  const v=parseFloat(document.getElementById('monthlyInput').value);
-  if(!isNaN(v)&&v>0) S.monthly=v;
+  const v = parseFloat(document.getElementById('monthlyInput').value);
+  if(!isNaN(v)&&v>0) S.monthly = v;
   for(const a of ALLOCS){
     const sh=parseFloat(document.getElementById(`p_${a.ticker}`)?.value);
     const co=parseFloat(document.getElementById(`c_${a.ticker}`)?.value);
     if(!isNaN(sh)) S.portfolio[a.ticker]=sh;
     if(!isNaN(co)) S.costBasis[a.ticker]=co;
   }
-  const ak=document.getElementById('apiKeyInput').value.trim();
-  const bi=document.getElementById('binIdInput').value.trim();
-  if(ak) S.apiKey=ak;
-  if(bi) S.binId=bi;
+  S.apiKey = document.getElementById('apiKeyInput').value.trim();
+  S.binId  = document.getElementById('binIdInput').value.trim();
   closeSettings();
   calculateAllocation();
   renderPortfolio();
@@ -817,83 +665,105 @@ function saveSettings(){
   toast('設定已儲存 ✓');
 }
 
-// ── CLOUD ──
-function updateCloudStatus(){
-  const s=document.getElementById('cloudStatus');
-  if(!S.apiKey){ s.textContent='未設定 API Key'; return; }
-  s.textContent=S.binId?`Bin: ${S.binId.slice(0,14)}...`:'API Key 已設定，尚未建立 Bin';
+// ── CLOUD (JSONBin.io) ──
+function getCloudPayload(){
+  return {
+    monthly: S.monthly,
+    portfolio: S.portfolio,
+    costBasis: S.costBasis,
+    savedAt: new Date().toISOString()
+  };
 }
+
+function updateCloudStatus(){
+  const s = document.getElementById('cloudStatus');
+  if(!S.apiKey){ s.textContent='未設定 API Key'; return; }
+  if(!S.binId)  { s.textContent='API Key 已設定，尚未建立 Bin'; return; }
+  s.textContent = `Bin: ${S.binId.slice(0,12)}...`;
+}
+
 async function testCloud(){
-  const key=document.getElementById('apiKeyInput').value.trim()||S.apiKey;
+  const key = document.getElementById('apiKeyInput').value.trim();
   if(!key){ toast('請先輸入 API Key','err'); return; }
-  toast('測試中...','info');
+  document.getElementById('cloudStatus').textContent = '測試中...';
   try{
-    const r=await fetch('https://api.jsonbin.io/v3/b',{
+    const r = await fetch('https://api.jsonbin.io/v3/b',{
       method:'POST',
-      headers:{'Content-Type':'application/json','X-Master-Key':key,'X-Bin-Name':'ping-test'},
-      body:JSON.stringify({ping:true}),signal:AbortSignal.timeout(8000)
+      headers:{'Content-Type':'application/json','X-Master-Key':key,'X-Bin-Name':'test-ping'},
+      body: JSON.stringify({test:true}),
+      signal: AbortSignal.timeout(8000)
     });
-    const d=await r.json();
-    if(d?.record){ toast('連接成功！API Key 有效 ✓'); document.getElementById('cloudStatus').textContent='API Key 有效 ✓'; }
-    else { toast('連接失敗：'+(d?.message||'未知'),'err'); }
+    const d = await r.json();
+    if(d?.record){
+      toast('連接成功！API Key 有效 ✓');
+      document.getElementById('cloudStatus').textContent = 'API Key 有效 ✓';
+    } else { toast('連接失敗：'+(d?.message||'未知錯誤'),'err'); }
   } catch(e){ toast('連接失敗：'+e.message,'err'); }
 }
-function buildPayload(){
-  const v=parseFloat(document.getElementById('monthlyInput')?.value);
-  if(!isNaN(v)&&v>0) S.monthly=v;
+
+async function uploadCloud(){
+  const key  = document.getElementById('apiKeyInput').value.trim() || S.apiKey;
+  const binId= document.getElementById('binIdInput').value.trim() || S.binId;
+  if(!key){ toast('請先輸入 API Key','err'); return; }
+
+  const payload = {
+    monthly: S.monthly,
+    portfolio: S.portfolio,
+    costBasis: S.costBasis,
+    savedAt: new Date().toISOString()
+  };
+  // Update S from inputs first
+  const v=parseFloat(document.getElementById('monthlyInput').value);
+  if(!isNaN(v)&&v>0){ S.monthly=v; payload.monthly=v; }
   for(const a of ALLOCS){
     const sh=parseFloat(document.getElementById(`p_${a.ticker}`)?.value);
     const co=parseFloat(document.getElementById(`c_${a.ticker}`)?.value);
-    if(!isNaN(sh)) S.portfolio[a.ticker]=sh;
-    if(!isNaN(co)) S.costBasis[a.ticker]=co;
+    if(!isNaN(sh)){ S.portfolio[a.ticker]=sh; payload.portfolio[a.ticker]=sh; }
+    if(!isNaN(co)){ S.costBasis[a.ticker]=co; payload.costBasis[a.ticker]=co; }
   }
-  return {monthly:S.monthly,portfolio:{...S.portfolio},costBasis:{...S.costBasis},savedAt:new Date().toISOString()};
-}
-async function uploadCloud(){
-  const key=document.getElementById('apiKeyInput').value.trim()||S.apiKey;
-  const binId=document.getElementById('binIdInput').value.trim()||S.binId;
-  if(!key){ toast('請先輸入 API Key','err'); return; }
-  toast('上傳中...','info',5000);
-  const payload=buildPayload();
+
   try{
-    let r,d;
+    let r, d;
     if(binId){
       r=await fetch(`https://api.jsonbin.io/v3/b/${binId}`,{
-        method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':key},
-        body:JSON.stringify(payload),signal:AbortSignal.timeout(10000)
+        method:'PUT',
+        headers:{'Content-Type':'application/json','X-Master-Key':key},
+        body:JSON.stringify(payload), signal:AbortSignal.timeout(8000)
       });
     } else {
       r=await fetch('https://api.jsonbin.io/v3/b',{
-        method:'POST',headers:{'Content-Type':'application/json','X-Master-Key':key,'X-Bin-Name':'月供追蹤','X-Bin-Private':'true'},
-        body:JSON.stringify(payload),signal:AbortSignal.timeout(10000)
+        method:'POST',
+        headers:{'Content-Type':'application/json','X-Master-Key':key,'X-Bin-Name':'月供追蹤','X-Bin-Private':'true'},
+        body:JSON.stringify(payload), signal:AbortSignal.timeout(8000)
       });
     }
     d=await r.json();
-    const newId=d?.metadata?.id||binId;
-    if(newId){
+    if(d?.record || d?.metadata){
+      const newId = d?.metadata?.id || binId;
       S.binId=newId; S.apiKey=key;
       document.getElementById('binIdInput').value=newId;
-      document.getElementById('cloudStatus').textContent='已同步 ✓';
-      toast('數據已上傳 ☁️ ✓');
-    } else { toast('上傳失敗：'+(d?.message||JSON.stringify(d).slice(0,60)),'err'); }
+      document.getElementById('cloudStatus').textContent=`已同步 ✓ Bin: ${newId.slice(0,12)}...`;
+      toast('數據已上傳至雲端 ☁️ ✓');
+    } else { toast('上傳失敗：'+(d?.message||JSON.stringify(d)),'err'); }
   } catch(e){ toast('上傳失敗：'+e.message,'err'); }
 }
+
 async function downloadCloud(){
-  const key=document.getElementById('apiKeyInput').value.trim()||S.apiKey;
-  const binId=document.getElementById('binIdInput').value.trim()||S.binId;
+  const key  = document.getElementById('apiKeyInput').value.trim() || S.apiKey;
+  const binId= document.getElementById('binIdInput').value.trim() || S.binId;
   if(!key||!binId){ toast('請輸入 API Key 同 Bin ID','err'); return; }
-  toast('下載中...','info',5000);
   try{
     const r=await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`,{
-      headers:{'X-Master-Key':key},signal:AbortSignal.timeout(10000)
+      headers:{'X-Master-Key':key}, signal:AbortSignal.timeout(8000)
     });
     const d=await r.json();
     if(d?.record){
       const rec=d.record;
       if(rec.monthly) S.monthly=rec.monthly;
-      if(rec.portfolio) Object.assign(S.portfolio,rec.portfolio);
-      if(rec.costBasis) Object.assign(S.costBasis,rec.costBasis);
+      if(rec.portfolio) S.portfolio={...S.portfolio,...rec.portfolio};
+      if(rec.costBasis) S.costBasis={...S.costBasis,...rec.costBasis};
       S.apiKey=key; S.binId=binId;
+      // Update UI inputs
       document.getElementById('monthlyInput').value=S.monthly;
       for(const a of ALLOCS){
         const pi=document.getElementById(`p_${a.ticker}`);
@@ -901,19 +771,27 @@ async function downloadCloud(){
         if(pi) pi.value=S.portfolio[a.ticker]||'';
         if(ci) ci.value=S.costBasis[a.ticker]||'';
       }
-      document.getElementById('cloudStatus').textContent=`已還原 ✓ ${rec.savedAt?new Date(rec.savedAt).toLocaleDateString('zh-HK'):''}`;
-      toast('數據已從雲端還原 ⬇️ ✓');
+      document.getElementById('cloudStatus').textContent=`已下載 ✓ ${rec.savedAt?new Date(rec.savedAt).toLocaleDateString('zh-HK'):''}`;
+      toast('數據已從雲端下載 ⬇️ ✓');
     } else { toast('下載失敗：'+(d?.message||'Bin 不存在'),'err'); }
   } catch(e){ toast('下載失敗：'+e.message,'err'); }
 }
 
 // ── INIT ──
 if(new Date().getDate()===7) document.getElementById('reminder').style.display='flex';
-document.getElementById('monthlyLabel').textContent=`HKD ${S.monthly.toLocaleString()}`;
-document.getElementById('fxRate').textContent=`1 USD = HKD ${S.fxRate.toFixed(4)}`;
-document.getElementById('stxt').textContent='使用預設數據，按刷新獲取最新';
-document.getElementById('sdot').style.background='var(--go)';
+document.getElementById('monthlyLabel').textContent = `HKD ${S.monthly.toLocaleString()}`;
+
+// Set fallback FX immediately
+document.getElementById('fxRate').textContent = `1 USD = HKD ${S.fxRate.toFixed(4)}`;
+document.getElementById('stxt').textContent = '使用預設數據，按刷新獲取最新';
+
 refreshAll();
 </script>
 </body>
-</html>
+</html>'''
+
+import os
+os.makedirs('/home/user/investment-tracker', exist_ok=True)
+with open('/home/user/investment-tracker/investment-tracker.html', 'w', encoding='utf-8') as f:
+    f.write(html_content)
+print(f"Done: {os.path.getsize('/home/user/investment-tracker/investment-tracker.html')} bytes")
