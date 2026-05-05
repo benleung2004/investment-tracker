@@ -251,6 +251,12 @@ a,button{transition:all var(--tr);}
         <path d="M8 16H3v5"/>
       </svg>
     </button>
+    <button class="ibtn" onclick="toggleRecord()" aria-label="記錄">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10,9 9,9 8,9"/>
+      </svg>
+    </button>
     <button class="ibtn" onclick="toggleTheme()" aria-label="主題">
       <svg id="themeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
@@ -505,41 +511,53 @@ function toggleTheme(){
 }
 
 // ── APP LAUNCH HELPERS ──
-function tryOpenApp(uri, fallback){
-  const now = Date.now();
-  const fallbackTimeout = setTimeout(()=>{
-    if(Date.now() - now < 1500){
-      window.location.href = fallback;
-    }
-  }, 1200);
-
-  const clearFallback = () => { clearTimeout(fallbackTimeout); };
-  document.addEventListener('visibilitychange', clearFallback, {once:true});
-  window.addEventListener('pagehide', clearFallback, {once:true});
-
+function tryOpenApp(uri){
   const link = document.createElement('a');
   link.href = uri;
   link.style.display = 'none';
   document.body.appendChild(link);
   link.click();
-  setTimeout(()=>{ document.body.removeChild(link); }, 1500);
+  setTimeout(()=>{ document.body.removeChild(link); }, 1000);
 }
 
 // ── PERPLEXITY ──
 function openPerplexity(e){
   e.preventDefault();
-  tryOpenApp('perplexity://', PERPLEXITY_URL);
+  tryOpenApp('perplexity://search/1d9c32ef-78a9-4b2c-bcf7-3b269301bdcb');
 }
 
 // ── IBKR ──
 function openIBKR(){
-  tryOpenApp('ibkr://', 'https://www.interactivebrokers.com.hk');
+  tryOpenApp('ibkr://');
 }
 
 function recordMonthlyContribution(){
   addMonthlyRecord(S.monthly);
   toast(`已新增 HKD ${S.monthly.toLocaleString()} 月供記錄`);
+
+  // Update portfolio based on allocation
+  for(const a of ALLOCS){
+    const hkdAmt = S.monthly * a.pct;
+    const usdAmt = hkdAmt / S.fxRate;
+    const price = S.data[a.ticker]?.price || a.monthly / S.fxRate; // fallback
+    const shares = usdAmt / price;
+    S.portfolio[a.ticker] = (S.portfolio[a.ticker] || 0) + shares;
+    S.costBasis[a.ticker] = price; // set cost basis to current price
+  }
+
   calculateAllocation();
+  renderPortfolio();
+  renderPNL();
+}
+
+function toggleRecord(){
+  const panel = document.getElementById('recordPanel');
+  if(panel.style.display === 'block'){
+    panel.style.display = 'none';
+  } else {
+    renderRecord();
+    panel.style.display = 'block';
+  }
 }
 
 // ── FETCH ──
