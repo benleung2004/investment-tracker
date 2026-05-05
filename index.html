@@ -275,7 +275,7 @@ a,button{transition:all var(--tr);}
 <div class="main">
 
   <!-- PERPLEXITY -->
-  <a class="pxcard" href="perplexity://" onclick="openPerplexity(event)">
+  <a class="pxcard" href="https://www.perplexity.ai/search/1d9c32ef-78a9-4b2c-bcf7-3b269301bdcb" onclick="openPerplexity(event)">
     <div class="pxicon">🤖</div>
     <div class="pxtxt">
       <strong>查閱月供 AI 投資建議</strong>
@@ -333,14 +333,14 @@ a,button{transition:all var(--tr);}
     <div class="panel" id="allocPanel"></div>
 
     <!-- IB BUTTON -->
-    <button class="btn-ib" onclick="openIBKR()">
+    <a class="btn-ib" href="https://www.interactivebrokers.com.hk" onclick="openIBKR(event)">
       <div class="ibdot"></div>
       開啟 IBKR 落單
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
         <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
       </svg>
-    </button>
+    </a>
 
     <!-- TOTAL PNL BOX -->
     <div class="pnl-box" id="pnlBox" style="display:none">
@@ -522,12 +522,11 @@ function tryOpenApp(uri){
 
 // ── PERPLEXITY ──
 function openPerplexity(e){
-  e.preventDefault();
   tryOpenApp('perplexity://search/1d9c32ef-78a9-4b2c-bcf7-3b269301bdcb');
 }
 
 // ── IBKR ──
-function openIBKR(){
+function openIBKR(e){
   tryOpenApp('ibkr://');
 }
 
