@@ -274,12 +274,12 @@ a,button{transition:all var(--tr);}
 <!-- MAIN -->
 <div class="main">
 
-  <!-- PERPLEXITY -->
-  <a class="pxcard" href="https://www.perplexity.ai/search/1d9c32ef-78a9-4b2c-bcf7-3b269301bdcb" onclick="openPerplexity(event)">
-    <div class="pxicon">🤖</div>
+  <!-- CLAUDE -->
+  <a class="pxcard" href="https://claude.ai/new" target="_blank" rel="noopener" onclick="openClaude(this)">
+    <div class="pxicon">✳️</div>
     <div class="pxtxt">
-      <strong>查閱月供 AI 投資建議</strong>
-      <span>月供策略討論</span>
+      <strong>問 Claude 月供建議</strong>
+      <span>自動帶入你嘅月供金額同分配</span>
     </div>
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fa);flex-shrink:0">
       <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
@@ -388,23 +388,19 @@ a,button{transition:all var(--tr);}
 
     <!-- CLOUD SYNC -->
     <div style="display:flex;flex-direction:column;gap:var(--s2)">
-      <div class="slbl">☁️ 雲端備份 (JSONBin.io)</div>
+      <div class="slbl">🔄 自動同步（私人 GitHub repo）</div>
       <div class="cloud-box">
         <div>
-          <div class="cloud-title">API Key</div>
-          <input class="ifield" type="text" id="apiKeyInput" placeholder="$2a$10$..." style="margin-top:var(--s2)">
+          <div class="cloud-title">GitHub Token</div>
+          <input class="ifield" type="password" id="ghTokenInput" placeholder="github_pat_..." autocomplete="off" style="margin-top:var(--s2)">
         </div>
         <div>
-          <div class="cloud-title">Bin ID <span style="font-weight:400;color:var(--fa)">(首次留空，自動建立)</span></div>
-          <input class="ifield" type="text" id="binIdInput" placeholder="64abc..." style="margin-top:var(--s2)">
+          <div class="cloud-title">Repo</div>
+          <input class="ifield" type="text" id="ghRepoInput" placeholder="benleung2004/investment-tracker-data" autocapitalize="none" style="margin-top:var(--s2)">
         </div>
         <div class="cloud-row">
           <span class="cloud-status" id="cloudStatus">未連接</span>
-          <button class="cloud-btn" onclick="testCloud()">測試連接</button>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--s2)">
-          <button class="cloud-btn" onclick="uploadCloud()">☁️ 上傳數據</button>
-          <button class="cloud-btn" onclick="downloadCloud()">⬇️ 下載數據</button>
+          <button class="cloud-btn" onclick="syncNow()">立即同步</button>
         </div>
       </div>
     </div>
@@ -418,7 +414,6 @@ a,button{transition:all var(--tr);}
 <div class="toast" id="toast"></div>
 
 <script>
-const PERPLEXITY_URL = 'https://www.perplexity.ai/search/1d9c32ef-78a9-4b2c-bcf7-3b269301bdcb';
 const FX_FALLBACK = 7.84;
 
 const COLORS = ['#3b82f6','#8b5cf6','#22c55e','#f59e0b','#ec4899','#14b8a6','#ef4444','#a3a3a3'];
@@ -468,8 +463,7 @@ let S = {
   data:    JSON.parse(JSON.stringify(FALLBACK)),
   portfolio:  {},
   costBasis:  {},
-  apiKey: '',
-  binId: '',
+  updatedAt: 0,
   lastRefresh: null,
   record: [],
 };
@@ -484,15 +478,18 @@ function loadSettings(){
     if(o.alloc){ const p=parseAlloc(o.alloc); if(p) ALLOCS=p; }
     if(o.portfolio) S.portfolio = o.portfolio;
     if(o.costBasis) S.costBasis = o.costBasis;
-    if(o.binId) S.binId = o.binId;
+    if(o.updatedAt) S.updatedAt = o.updatedAt;
   } catch {}
 }
-function saveSettingsStore(){
+// fromRemote=true when applying synced data (keeps its timestamp, no push back)
+function saveSettingsStore(fromRemote=false){
+  if(!fromRemote) S.updatedAt = Date.now();
   try{
     localStorage.setItem(SETTINGS_KEY, JSON.stringify({
-      monthly:S.monthly, alloc:allocText(), portfolio:S.portfolio, costBasis:S.costBasis, binId:S.binId
+      monthly:S.monthly, alloc:allocText(), portfolio:S.portfolio, costBasis:S.costBasis, updatedAt:S.updatedAt
     }));
   } catch {}
+  if(!fromRemote) schedulePush();
 }
 
 function loadRecord(){
@@ -504,8 +501,9 @@ function loadRecord(){
   }
 }
 
-function saveRecord(){
-  localStorage.setItem(RECORD_KEY, JSON.stringify(S.record));
+function saveRecord(fromRemote=false){
+  try{ localStorage.setItem(RECORD_KEY, JSON.stringify(S.record)); } catch {}
+  if(!fromRemote) saveSettingsStore();
 }
 
 function formatRecordDate(iso){
@@ -571,9 +569,10 @@ function tryOpenApp(uri){
   setTimeout(()=>{ document.body.removeChild(link); }, 1000);
 }
 
-// ── PERPLEXITY ──
-function openPerplexity(e){
-  tryOpenApp('perplexity://search/1d9c32ef-78a9-4b2c-bcf7-3b269301bdcb');
+// ── CLAUDE ──
+function openClaude(link){
+  const q = `我喺 IBKR 每月月供 HKD ${S.monthly}，分配：${allocText()}。請幫我分析呢個組合嘅風險、費用同分散程度。`;
+  link.href = 'https://claude.ai/new?q=' + encodeURIComponent(q);
 }
 
 // ── IBKR ──
@@ -802,8 +801,9 @@ function renderPortfolio(){
 function openSettings(){
   document.getElementById('monthlyInput').value = S.monthly;
   document.getElementById('allocInput').value   = allocText();
-  document.getElementById('apiKeyInput').value  = S.apiKey;
-  document.getElementById('binIdInput').value   = S.binId;
+  const sc = getSyncConfig();
+  document.getElementById('ghTokenInput').value = sc.token;
+  document.getElementById('ghRepoInput').value  = sc.repo;
   let h='';
   for(const a of ALLOCS){
     h+=`<div class="ig">
@@ -817,12 +817,22 @@ function openSettings(){
   }
   document.getElementById('portInputs').innerHTML = h;
   document.getElementById('settingsModal').classList.add('open');
-  updateCloudStatus();
 }
 function closeSettings(){ document.getElementById('settingsModal').classList.remove('open'); }
 function closeOnOverlay(e){ if(e.target===e.currentTarget) closeSettings(); }
 
 function saveSettings(){
+  // Connecting sync on this device: take the cloud copy first, ignore other edits
+  const token = document.getElementById('ghTokenInput').value.trim();
+  const repo  = document.getElementById('ghRepoInput').value.trim() || DEFAULT_SYNC_REPO;
+  const old = getSyncConfig();
+  if(token !== old.token || repo !== old.repo){
+    setSyncConfig({token, repo});
+    closeSettings();
+    if(token){ toast('連接中，會先下載雲端資料…'); pullSync(true); }
+    else { setSyncStatus('未連接'); toast('已停止同步'); }
+    return;
+  }
   const newAlloc = parseAlloc(document.getElementById('allocInput').value);
   if(!newAlloc){ toast('分配格式錯：例如「VOO 70, QQQM 30」，合計要 100','err',4000); return; }
   const v = parseFloat(document.getElementById('monthlyInput').value);
@@ -835,8 +845,6 @@ function saveSettings(){
   }
   const tickersChanged = newAlloc.map(a=>a.ticker).join() !== ALLOCS.map(a=>a.ticker).join();
   ALLOCS = newAlloc;
-  S.apiKey = document.getElementById('apiKeyInput').value.trim();
-  S.binId  = document.getElementById('binIdInput').value.trim();
   saveSettingsStore();
   closeSettings();
   calculateAllocation();
@@ -846,122 +854,99 @@ function saveSettings(){
   if(tickersChanged) refreshAll();
 }
 
-// ── CLOUD (JSONBin.io) ──
-function getCloudPayload(){
-  return {
-    monthly: S.monthly,
-    portfolio: S.portfolio,
-    costBasis: S.costBasis,
-    savedAt: new Date().toISOString()
-  };
+// ── SYNC (private GitHub repo via Contents API) ──
+// Token + repo are stored only in this browser. Data file: data.json in the repo.
+const SYNC_KEY = 'githubSync';
+const DEFAULT_SYNC_REPO = 'benleung2004/investment-tracker-data';
+const SYNC_FILE = 'data.json';
+let pushTimer = null, syncBusy = false;
+
+function getSyncConfig(){
+  try{ const o = JSON.parse(localStorage.getItem(SYNC_KEY)||'{}'); return {token:o.token||'', repo:o.repo||DEFAULT_SYNC_REPO}; }
+  catch { return {token:'', repo:DEFAULT_SYNC_REPO}; }
+}
+function setSyncConfig(c){ try{ localStorage.setItem(SYNC_KEY, JSON.stringify(c)); } catch {} }
+function setSyncStatus(msg){ const el=document.getElementById('cloudStatus'); if(el) el.textContent=msg; }
+
+function b64encode(str){
+  const bytes = new TextEncoder().encode(str); let bin='';
+  for(const b of bytes) bin += String.fromCharCode(b);
+  return btoa(bin);
+}
+function b64decode(b64){
+  return new TextDecoder().decode(Uint8Array.from(atob(b64.replace(/\n/g,'')), c=>c.charCodeAt(0)));
 }
 
-function updateCloudStatus(){
-  const s = document.getElementById('cloudStatus');
-  if(!S.apiKey){ s.textContent='未設定 API Key'; return; }
-  if(!S.binId)  { s.textContent='API Key 已設定，尚未建立 Bin'; return; }
-  s.textContent = `Bin: ${S.binId.slice(0,12)}...`;
+async function ghFetch(path, opts={}){
+  const {token, repo} = getSyncConfig();
+  return fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+    ...opts, cache:'no-store', signal:AbortSignal.timeout(10000),
+    headers:{'Authorization':`Bearer ${token}`, 'Accept':'application/vnd.github+json', ...(opts.headers||{})}
+  });
+}
+// Returns {sha, data} or null when the file does not exist yet
+async function ghGet(){
+  const r = await ghFetch(SYNC_FILE);
+  if(r.status===404) return null;
+  if(!r.ok) throw new Error(r.status===401 ? 'Token 無效或過期' : `GitHub ${r.status}`);
+  const d = await r.json();
+  return {sha:d.sha, data:JSON.parse(b64decode(d.content))};
 }
 
-async function testCloud(){
-  const key = document.getElementById('apiKeyInput').value.trim();
-  if(!key){ toast('請先輸入 API Key','err'); return; }
-  document.getElementById('cloudStatus').textContent = '測試中...';
+function syncPayload(){
+  return {monthly:S.monthly, alloc:allocText(), portfolio:S.portfolio, costBasis:S.costBasis, record:S.record, updatedAt:S.updatedAt};
+}
+function applyRemote(d){
+  if(d.monthly>0) S.monthly = d.monthly;
+  if(d.alloc){ const p=parseAlloc(d.alloc); if(p) ALLOCS=p; }
+  S.portfolio = d.portfolio || {};
+  S.costBasis = d.costBasis || {};
+  S.record = Array.isArray(d.record) ? d.record : [];
+  S.updatedAt = d.updatedAt || Date.now();
+  saveSettingsStore(true); saveRecord(true);
+  calculateAllocation(); renderPortfolio(); renderPNL(); renderRecord();
+}
+
+async function pushSync(retry=true){
+  const {token} = getSyncConfig(); if(!token) return;
   try{
-    const r = await fetch('https://api.jsonbin.io/v3/b',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','X-Master-Key':key,'X-Bin-Name':'test-ping'},
-      body: JSON.stringify({test:true}),
-      signal: AbortSignal.timeout(8000)
-    });
-    const d = await r.json();
-    if(d?.record){
-      toast('連接成功！API Key 有效 ✓');
-      document.getElementById('cloudStatus').textContent = 'API Key 有效 ✓';
-    } else { toast('連接失敗：'+(d?.message||'未知錯誤'),'err'); }
-  } catch(e){ toast('連接失敗：'+e.message,'err'); }
+    setSyncStatus('上傳中…');
+    const cur = await ghGet();
+    const body = {message:`sync ${new Date().toISOString()}`, content:b64encode(JSON.stringify(syncPayload(),null,2))};
+    if(cur) body.sha = cur.sha;
+    const r = await ghFetch(SYNC_FILE, {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+    if((r.status===409 || r.status===422) && retry) return pushSync(false);
+    if(!r.ok) throw new Error(r.status===401 ? 'Token 無效或過期' : r.status===404 ? '搵唔到 repo 或冇權限' : `GitHub ${r.status}`);
+    setSyncStatus(`已同步 ✓ ${new Date().toLocaleTimeString('zh-HK',{hour:'2-digit',minute:'2-digit'})}`);
+  } catch(e){ setSyncStatus('同步失敗：'+e.message); toast('同步失敗：'+e.message,'err',4000); }
 }
-
-async function uploadCloud(){
-  const key  = document.getElementById('apiKeyInput').value.trim() || S.apiKey;
-  const binId= document.getElementById('binIdInput').value.trim() || S.binId;
-  if(!key){ toast('請先輸入 API Key','err'); return; }
-
-  const payload = {
-    monthly: S.monthly,
-    alloc: allocText(),
-    portfolio: S.portfolio,
-    costBasis: S.costBasis,
-    savedAt: new Date().toISOString()
-  };
-  // Update S from inputs first
-  const v=parseFloat(document.getElementById('monthlyInput').value);
-  if(!isNaN(v)&&v>0){ S.monthly=v; payload.monthly=v; }
-  for(const a of ALLOCS){
-    const sh=parseFloat(document.getElementById(`p_${a.ticker}`)?.value);
-    const co=parseFloat(document.getElementById(`c_${a.ticker}`)?.value);
-    if(!isNaN(sh)){ S.portfolio[a.ticker]=sh; payload.portfolio[a.ticker]=sh; }
-    if(!isNaN(co)){ S.costBasis[a.ticker]=co; payload.costBasis[a.ticker]=co; }
-  }
-
+function schedulePush(){
+  if(!getSyncConfig().token) return;
+  clearTimeout(pushTimer);
+  pushTimer = setTimeout(()=>pushSync(), 1500);
+}
+// preferRemote=true: first connect on this device, cloud copy always wins
+async function pullSync(preferRemote=false){
+  const {token} = getSyncConfig(); if(!token || syncBusy) return;
+  syncBusy = true;
   try{
-    let r, d;
-    if(binId){
-      r=await fetch(`https://api.jsonbin.io/v3/b/${binId}`,{
-        method:'PUT',
-        headers:{'Content-Type':'application/json','X-Master-Key':key},
-        body:JSON.stringify(payload), signal:AbortSignal.timeout(8000)
-      });
+    setSyncStatus('同步中…');
+    const remote = await ghGet();
+    if(remote && (preferRemote || (remote.data.updatedAt||0) > S.updatedAt)){
+      applyRemote(remote.data);
+      setSyncStatus(`已同步 ✓ ${new Date().toLocaleTimeString('zh-HK',{hour:'2-digit',minute:'2-digit'})}`);
+      if(preferRemote) toast('已連接，已下載雲端資料 ✓');
+    } else if(!remote || (remote.data.updatedAt||0) < S.updatedAt){
+      if(!S.updatedAt) S.updatedAt = Date.now();
+      await pushSync();
+      if(preferRemote) toast('已連接，已上傳呢部機嘅資料 ✓');
     } else {
-      r=await fetch('https://api.jsonbin.io/v3/b',{
-        method:'POST',
-        headers:{'Content-Type':'application/json','X-Master-Key':key,'X-Bin-Name':'月供追蹤','X-Bin-Private':'true'},
-        body:JSON.stringify(payload), signal:AbortSignal.timeout(8000)
-      });
+      setSyncStatus('已同步 ✓');
     }
-    d=await r.json();
-    if(d?.record || d?.metadata){
-      const newId = d?.metadata?.id || binId;
-      S.binId=newId; S.apiKey=key;
-      document.getElementById('binIdInput').value=newId;
-      document.getElementById('cloudStatus').textContent=`已同步 ✓ Bin: ${newId.slice(0,12)}...`;
-      toast('數據已上傳至雲端 ☁️ ✓');
-    } else { toast('上傳失敗：'+(d?.message||JSON.stringify(d)),'err'); }
-  } catch(e){ toast('上傳失敗：'+e.message,'err'); }
+  } catch(e){ setSyncStatus('同步失敗：'+e.message); toast('同步失敗：'+e.message,'err',4000); }
+  finally{ syncBusy = false; }
 }
-
-async function downloadCloud(){
-  const key  = document.getElementById('apiKeyInput').value.trim() || S.apiKey;
-  const binId= document.getElementById('binIdInput').value.trim() || S.binId;
-  if(!key||!binId){ toast('請輸入 API Key 同 Bin ID','err'); return; }
-  try{
-    const r=await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`,{
-      headers:{'X-Master-Key':key}, signal:AbortSignal.timeout(8000)
-    });
-    const d=await r.json();
-    if(d?.record){
-      const rec=d.record;
-      if(rec.monthly) S.monthly=rec.monthly;
-      if(rec.portfolio) S.portfolio={...S.portfolio,...rec.portfolio};
-      if(rec.costBasis) S.costBasis={...S.costBasis,...rec.costBasis};
-      if(rec.alloc){ const p=parseAlloc(rec.alloc); if(p) ALLOCS=p; }
-      S.apiKey=key; S.binId=binId;
-      saveSettingsStore();
-      document.getElementById('allocInput').value=allocText();
-      calculateAllocation(); renderPortfolio(); renderPNL();
-      // Update UI inputs
-      document.getElementById('monthlyInput').value=S.monthly;
-      for(const a of ALLOCS){
-        const pi=document.getElementById(`p_${a.ticker}`);
-        const ci=document.getElementById(`c_${a.ticker}`);
-        if(pi) pi.value=S.portfolio[a.ticker]||'';
-        if(ci) ci.value=S.costBasis[a.ticker]||'';
-      }
-      document.getElementById('cloudStatus').textContent=`已下載 ✓ ${rec.savedAt?new Date(rec.savedAt).toLocaleDateString('zh-HK'):''}`;
-      toast('數據已從雲端下載 ⬇️ ✓');
-    } else { toast('下載失敗：'+(d?.message||'Bin 不存在'),'err'); }
-  } catch(e){ toast('下載失敗：'+e.message,'err'); }
-}
+function syncNow(){ pullSync(); }
 
 // ── INIT ──
 loadSettings();
@@ -975,6 +960,9 @@ document.getElementById('fxRate').textContent = `1 USD = HKD ${S.fxRate.toFixed(
 document.getElementById('stxt').textContent = '使用預設數據，按刷新獲取最新';
 
 refreshAll();
+pullSync();
+document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible') pullSync(); });
+if(getSyncConfig().token) setSyncStatus('已連接');
 </script>
 </body>
 </html>
