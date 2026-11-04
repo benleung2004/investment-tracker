@@ -1,4 +1,4 @@
-html_content = r'''<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-HK" data-theme="dark">
 <head>
 <meta charset="UTF-8">
@@ -279,7 +279,7 @@ a,button{transition:all var(--tr);}
     <div class="pxicon">🤖</div>
     <div class="pxtxt">
       <strong>查閱月供 AI 投資建議</strong>
-      <span>NVDA · QQQM · VOO · QLD 策略討論</span>
+      <span>月供策略討論</span>
     </div>
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fa);flex-shrink:0">
       <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
@@ -302,7 +302,7 @@ a,button{transition:all var(--tr);}
     </button>
     <div class="month-badge">
       <span class="mb-label">每月</span>
-      <span class="mb-val" id="monthlyLabel">HKD 5,000</span>
+      <span class="mb-val" id="monthlyLabel">HKD 10,000</span>
     </div>
   </div>
 
@@ -371,7 +371,13 @@ a,button{transition:all var(--tr);}
     <!-- MONTHLY -->
     <div class="ig">
       <label class="ilbl">每月供款 (HKD)</label>
-      <input class="ifield" type="number" id="monthlyInput" placeholder="5000" inputmode="numeric">
+      <input class="ifield" type="number" id="monthlyInput" placeholder="10000" inputmode="numeric">
+    </div>
+
+    <!-- ALLOCATION -->
+    <div class="ig">
+      <label class="ilbl">月供分配（代號 百分比，合計 100）</label>
+      <input class="ifield" type="text" id="allocInput" placeholder="VOO 70, QQQM 30" autocapitalize="characters">
     </div>
 
     <!-- PORTFOLIO -->
@@ -415,34 +421,78 @@ a,button{transition:all var(--tr);}
 const PERPLEXITY_URL = 'https://www.perplexity.ai/search/1d9c32ef-78a9-4b2c-bcf7-3b269301bdcb';
 const FX_FALLBACK = 7.84;
 
-const ALLOCS = [
-  {ticker:'NVDA', name:'Nvidia Corp',        pct:.30, color:'#76b900', monthly:1500},
-  {ticker:'QQQM', name:'Invesco Nasdaq 100', pct:.40, color:'#3b82f6', monthly:2000},
-  {ticker:'VOO',  name:'Vanguard S&P 500',   pct:.20, color:'#8b5cf6', monthly:1000},
-  {ticker:'QLD',  name:'ProShares 2x QQQ',  pct:.10, color:'#f59e0b', monthly:500},
-];
+const COLORS = ['#3b82f6','#8b5cf6','#22c55e','#f59e0b','#ec4899','#14b8a6','#ef4444','#a3a3a3'];
+const NAMES = {
+  VOO:'Vanguard S&P 500', SPY:'SPDR S&P 500', SPYM:'SPDR Portfolio S&P 500', SPLG:'SPDR Portfolio S&P 500',
+  QQQ:'Invesco QQQ', QQQM:'Invesco Nasdaq 100', VT:'Vanguard Total World', VTI:'Vanguard Total US',
+  SMH:'VanEck Semiconductor', SPMO:'Invesco S&P 500 Momentum', NVDA:'Nvidia Corp', MU:'Micron Technology',
+  CSPX:'iShares Core S&P 500 UCITS', QLD:'ProShares 2x QQQ',
+};
+const DEFAULT_ALLOC = 'QQQM 40, VOO 20, SMH 20, SPMO 20';
 
-// Fallback data (May 5 2026 close)
+// Parse "VOO 60, QQQM 40" (or "VOO:60") into allocation rows; returns null if invalid
+function parseAlloc(text){
+  const rows=[];
+  for(const part of String(text).split(/[,，\n]/)){
+    const t=part.trim(); if(!t) continue;
+    const m=t.match(/^([A-Za-z0-9.\-=]+)\s*[: ]\s*([\d.]+)\s*%?$/);
+    if(!m) return null;
+    const ticker=m[1].toUpperCase(), pct=parseFloat(m[2]);
+    if(!(pct>0) || rows.some(r=>r.ticker===ticker)) return null;
+    rows.push({ticker, pct});
+  }
+  const sum=rows.reduce((a,r)=>a+r.pct,0);
+  if(!rows.length || Math.abs(sum-100)>0.01) return null;
+  return rows.map((r,i)=>({ticker:r.ticker, name:NAMES[r.ticker]||r.ticker, pct:r.pct/100, color:COLORS[i%COLORS.length]}));
+}
+function allocText(){ return ALLOCS.map(a=>`${a.ticker} ${+(a.pct*100).toFixed(2)}`).join(', '); }
+
+let ALLOCS = parseAlloc(DEFAULT_ALLOC);
+
+// Fallback data (Nov 3 2026 close)
 const FALLBACK = {
-  NVDA: {price:198.34, change:-0.14, changePct:-0.07},
-  QQQM: {price:477.54, change:+2.64, changePct:+0.56},
-  VOO:  {price:541.20, change:+1.94, changePct:+0.36},
-  QLD:  {price:105.44, change:-0.33, changePct:-0.31},
+  QQQM: {price:282.23, change:0, changePct:0},
+  VOO:  {price:693.54, change:0, changePct:0},
+  SMH:  {price:518.52, change:0, changePct:0},
+  SPMO: {price:133.16, change:0, changePct:0},
+  NVDA: {price:206.69, change:0, changePct:0},
 };
 
-// State — use sessionStorage key as in-memory store
+// State
 const RECORD_KEY = 'monthlyContributionRecord';
+const SETTINGS_KEY = 'monthlySettings';
 let S = {
-  monthly: 5000,
+  monthly: 10000,
   fxRate:  FX_FALLBACK,
   data:    JSON.parse(JSON.stringify(FALLBACK)),
-  portfolio:  {NVDA:0, QQQM:0, VOO:0, QLD:0},
-  costBasis:  {NVDA:0, QQQM:0, VOO:0, QLD:0},
+  portfolio:  {},
+  costBasis:  {},
   apiKey: '',
   binId: '',
   lastRefresh: null,
   record: [],
 };
+
+// Settings persist in this browser only (API key is never stored)
+function loadSettings(){
+  try{
+    const raw = localStorage.getItem(SETTINGS_KEY);
+    if(!raw) return;
+    const o = JSON.parse(raw);
+    if(o.monthly>0) S.monthly = o.monthly;
+    if(o.alloc){ const p=parseAlloc(o.alloc); if(p) ALLOCS=p; }
+    if(o.portfolio) S.portfolio = o.portfolio;
+    if(o.costBasis) S.costBasis = o.costBasis;
+    if(o.binId) S.binId = o.binId;
+  } catch {}
+}
+function saveSettingsStore(){
+  try{
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify({
+      monthly:S.monthly, alloc:allocText(), portfolio:S.portfolio, costBasis:S.costBasis, binId:S.binId
+    }));
+  } catch {}
+}
 
 function loadRecord(){
   try{
@@ -534,15 +584,19 @@ function recordMonthlyContribution(){
   addMonthlyRecord(S.monthly);
   toast(`已新增 HKD ${S.monthly.toLocaleString()} 月供記錄`);
 
-  // Update portfolio based on allocation
+  // Update portfolio based on allocation (weighted average cost)
+  const missing=[];
   for(const a of ALLOCS){
-    const hkdAmt = S.monthly * a.pct;
-    const usdAmt = hkdAmt / S.fxRate;
-    const price = S.data[a.ticker]?.price || a.monthly / S.fxRate; // fallback
-    const shares = usdAmt / price;
-    S.portfolio[a.ticker] = (S.portfolio[a.ticker] || 0) + shares;
-    S.costBasis[a.ticker] = price; // set cost basis to current price
+    const price = S.data[a.ticker]?.price;
+    if(!price){ missing.push(a.ticker); continue; }
+    const shares = S.monthly * a.pct / S.fxRate / price;
+    const oldSh = S.portfolio[a.ticker] || 0, oldCost = S.costBasis[a.ticker] || 0;
+    const newSh = oldSh + shares;
+    S.portfolio[a.ticker] = +newSh.toFixed(6);
+    S.costBasis[a.ticker] = +((oldSh*oldCost + shares*price) / newSh).toFixed(4);
   }
+  if(missing.length) toast(`未有 ${missing.join('、')} 價錢，呢幾隻未計入持倉`,'err',4000);
+  saveSettingsStore();
 
   calculateAllocation();
   renderPortfolio();
@@ -577,7 +631,7 @@ async function refreshAll(){
   icon.classList.add('spinning');
   setStatus('正在獲取實時數據...', false);
 
-  const syms = ['NVDA','QQQM','VOO','QLD','HKD=X'];
+  const syms = [...ALLOCS.map(a=>a.ticker),'HKD=X'];
   const res  = await Promise.allSettled(syms.map(s=>fetchYahoo(s)));
   syms.forEach((sym,i)=>{
     if(res[i].status==='fulfilled' && res[i].value){
@@ -615,9 +669,6 @@ function chgBadge(change, pct){
 // ── ALLOCATION ──
 function calculateAllocation(){
   const usdTotal = S.monthly / S.fxRate;
-  // compute each stock's monthly HKD amounts from fixed monthly values
-  const months = {NVDA:1500, QQQM:2000, VOO:1000, QLD:500};
-
   let html = `<div class="ph">
     <span class="pht">月供分配</span>
     <span class="phm">HKD ${S.monthly.toLocaleString()} ≈ USD ${usdTotal.toFixed(0)}</span>
@@ -709,6 +760,7 @@ function renderPortfolio(){
 // ── SETTINGS ──
 function openSettings(){
   document.getElementById('monthlyInput').value = S.monthly;
+  document.getElementById('allocInput').value   = allocText();
   document.getElementById('apiKeyInput').value  = S.apiKey;
   document.getElementById('binIdInput').value   = S.binId;
   let h='';
@@ -730,6 +782,8 @@ function closeSettings(){ document.getElementById('settingsModal').classList.rem
 function closeOnOverlay(e){ if(e.target===e.currentTarget) closeSettings(); }
 
 function saveSettings(){
+  const newAlloc = parseAlloc(document.getElementById('allocInput').value);
+  if(!newAlloc){ toast('分配格式錯：例如「VOO 70, QQQM 30」，合計要 100','err',4000); return; }
   const v = parseFloat(document.getElementById('monthlyInput').value);
   if(!isNaN(v)&&v>0) S.monthly = v;
   for(const a of ALLOCS){
@@ -738,13 +792,17 @@ function saveSettings(){
     if(!isNaN(sh)) S.portfolio[a.ticker]=sh;
     if(!isNaN(co)) S.costBasis[a.ticker]=co;
   }
+  const tickersChanged = newAlloc.map(a=>a.ticker).join() !== ALLOCS.map(a=>a.ticker).join();
+  ALLOCS = newAlloc;
   S.apiKey = document.getElementById('apiKeyInput').value.trim();
   S.binId  = document.getElementById('binIdInput').value.trim();
+  saveSettingsStore();
   closeSettings();
   calculateAllocation();
   renderPortfolio();
   renderPNL();
   toast('設定已儲存 ✓');
+  if(tickersChanged) refreshAll();
 }
 
 // ── CLOUD (JSONBin.io) ──
@@ -790,6 +848,7 @@ async function uploadCloud(){
 
   const payload = {
     monthly: S.monthly,
+    alloc: allocText(),
     portfolio: S.portfolio,
     costBasis: S.costBasis,
     savedAt: new Date().toISOString()
@@ -844,7 +903,11 @@ async function downloadCloud(){
       if(rec.monthly) S.monthly=rec.monthly;
       if(rec.portfolio) S.portfolio={...S.portfolio,...rec.portfolio};
       if(rec.costBasis) S.costBasis={...S.costBasis,...rec.costBasis};
+      if(rec.alloc){ const p=parseAlloc(rec.alloc); if(p) ALLOCS=p; }
       S.apiKey=key; S.binId=binId;
+      saveSettingsStore();
+      document.getElementById('allocInput').value=allocText();
+      calculateAllocation(); renderPortfolio(); renderPNL();
       // Update UI inputs
       document.getElementById('monthlyInput').value=S.monthly;
       for(const a of ALLOCS){
@@ -860,6 +923,7 @@ async function downloadCloud(){
 }
 
 // ── INIT ──
+loadSettings();
 loadRecord();
 if(new Date().getDate()===7) document.getElementById('reminder').style.display='flex';
 document.getElementById('monthlyLabel').textContent = `HKD ${S.monthly.toLocaleString()}`;
@@ -872,10 +936,4 @@ document.getElementById('stxt').textContent = '使用預設數據，按刷新獲
 refreshAll();
 </script>
 </body>
-</html>'''
-
-import os
-os.makedirs('/home/user/investment-tracker', exist_ok=True)
-with open('/home/user/investment-tracker/investment-tracker.html', 'w', encoding='utf-8') as f:
-    f.write(html_content)
-print(f"Done: {os.path.getsize('/home/user/investment-tracker/investment-tracker.html')} bytes")
+</html>
