@@ -426,9 +426,9 @@ const NAMES = {
   VOO:'Vanguard S&P 500', SPY:'SPDR S&P 500', SPYM:'SPDR Portfolio S&P 500', SPLG:'SPDR Portfolio S&P 500',
   QQQ:'Invesco QQQ', QQQM:'Invesco Nasdaq 100', VT:'Vanguard Total World', VTI:'Vanguard Total US',
   SMH:'VanEck Semiconductor', SPMO:'Invesco S&P 500 Momentum', NVDA:'Nvidia Corp', MU:'Micron Technology',
-  CSPX:'iShares Core S&P 500 UCITS', QLD:'ProShares 2x QQQ',
+  CSPX:'iShares Core S&P 500 UCITS', 'CSPX.L':'iShares Core S&P 500 UCITS (LSE)', QLD:'ProShares 2x QQQ',
 };
-const DEFAULT_ALLOC = 'QQQM 40, VOO 20, SMH 20, SPMO 20';
+const DEFAULT_ALLOC = 'CSPX.L 70, QQQM 30';
 
 // Parse "VOO 60, QQQM 40" (or "VOO:60") into allocation rows; returns null if invalid
 function parseAlloc(text){
@@ -449,13 +449,14 @@ function allocText(){ return ALLOCS.map(a=>`${a.ticker} ${+(a.pct*100).toFixed(2
 
 let ALLOCS = parseAlloc(DEFAULT_ALLOC);
 
-// Fallback data (Nov 3 2026 close)
+// Fallback prices (Nov 4 2026); edit in the allocation panel if outdated
 const FALLBACK = {
-  QQQM: {price:282.23, change:0, changePct:0},
-  VOO:  {price:693.54, change:0, changePct:0},
-  SMH:  {price:518.52, change:0, changePct:0},
-  SPMO: {price:133.16, change:0, changePct:0},
-  NVDA: {price:206.69, change:0, changePct:0},
+  'CSPX.L': {price:826.97, change:null, changePct:null},
+  QQQM: {price:285.53, change:null, changePct:null},
+  VOO:  {price:704.71, change:null, changePct:null},
+  SMH:  {price:518.52, change:null, changePct:null},
+  SPMO: {price:133.16, change:null, changePct:null},
+  NVDA: {price:206.69, change:null, changePct:null},
 };
 
 // State
@@ -586,10 +587,9 @@ function recordMonthlyContribution(){
 
   // Update portfolio based on allocation (weighted average cost)
   const missing=[];
-  for(const a of ALLOCS){
-    const price = S.data[a.ticker]?.price;
-    if(!price){ missing.push(a.ticker); continue; }
-    const shares = S.monthly * a.pct / S.fxRate / price;
+  for(const r of computeBuyPlan().rows){
+    const a = r.a, price = r.price, shares = r.shares;
+    if(!price || !shares){ missing.push(a.ticker); continue; }
     const oldSh = S.portfolio[a.ticker] || 0, oldCost = S.costBasis[a.ticker] || 0;
     const newSh = oldSh + shares;
     S.portfolio[a.ticker] = +newSh.toFixed(6);
@@ -637,7 +637,7 @@ async function refreshAll(){
     if(res[i].status==='fulfilled' && res[i].value){
       const v = res[i].value;
       if(sym==='HKD=X'){
-        const r = +(1/v.price).toFixed(4);
+        const r = +v.price.toFixed(4); // Yahoo HKD=X is already HKD per 1 USD
         if(r>=7.75 && r<=7.90) S.fxRate = r;
       } else { S.data[sym] = v; }
     }
@@ -666,34 +666,75 @@ function chgBadge(change, pct){
   return `<span class="schg ${cl}">${s}${change.toFixed(2)} (${s}${pct.toFixed(2)}%)</span>`;
 }
 
+// ── IBKR FEES (Tiered, checked 2026-11-05 on interactivebrokers.com.hk) ──
+// FX: 0.20 bp of trade value, min USD 2.00 per conversion
+// US stocks/ETFs: USD 0.0035/share, min USD 0.35, max 1% of trade value
+// LSE USD-denominated (ticker ends .L): 0.05% of trade value, min USD 1.70, max USD 39
+// Third-party exchange/clearing fees are not included (usually cents).
+const BUFFER_USD = 1; // keep a little cash so the cash account never goes negative
+function fxFeeUSD(usd){ return Math.max(2, usd*0.00002); }
+function commissionUSD(ticker, value, price){
+  if(/\.L$/i.test(ticker)) return Math.min(39, Math.max(1.70, value*0.0005));
+  const shares = price ? value/price : 0;
+  return Math.min(Math.max(0.35, shares*0.0035), value*0.01);
+}
+// Split this month's HKD into orders: trade value + commission = each ticker's budget
+function computeBuyPlan(){
+  const usdGross = S.monthly / S.fxRate;
+  const fxFee = fxFeeUSD(usdGross);
+  const usdAvail = Math.max(0, usdGross - fxFee - BUFFER_USD);
+  const rows = ALLOCS.map(a=>{
+    const price = S.data[a.ticker]?.price;
+    const budget = usdAvail * a.pct;
+    let value = budget;
+    for(let i=0;i<5;i++) value = Math.max(0, budget - commissionUSD(a.ticker, value, price));
+    const shares = price ? Math.floor(value/price*10000)/10000 : 0;
+    const tradeVal = shares*price || 0;
+    const comm = price ? commissionUSD(a.ticker, tradeVal, price) : 0;
+    return {a, price, budget, shares, tradeVal, comm};
+  });
+  const commTotal = rows.reduce((s,r)=>s+r.comm,0);
+  return {usdGross, fxFee, usdAvail, rows, commTotal, feeTotal: fxFee+commTotal};
+}
+
+function setPrice(ticker, val){
+  const p = parseFloat(val);
+  if(!(p>0)) return;
+  S.data[ticker] = {price:p, change:null, changePct:null};
+  calculateAllocation();
+}
+
 // ── ALLOCATION ──
 function calculateAllocation(){
-  const usdTotal = S.monthly / S.fxRate;
+  const plan = computeBuyPlan();
+  const hk = usd => (usd*S.fxRate).toFixed(1);
   let html = `<div class="ph">
     <span class="pht">月供分配</span>
-    <span class="phm">HKD ${S.monthly.toLocaleString()} ≈ USD ${usdTotal.toFixed(0)}</span>
+    <span class="phm">HKD ${S.monthly.toLocaleString()} ≈ USD ${plan.usdGross.toFixed(2)}</span>
+  </div>
+  <div class="arow" style="display:block;font-size:var(--text-xs);color:var(--mu);font-family:var(--fm);line-height:1.7">
+    換匯費 USD ${plan.fxFee.toFixed(2)} (HKD ${hk(plan.fxFee)}) · 佣金 USD ${plan.commTotal.toFixed(2)}<br>
+    總費用 ≈ HKD ${hk(plan.feeTotal)}（${(plan.feeTotal/plan.usdGross*100).toFixed(2)}%）· 預留 USD ${BUFFER_USD}
   </div>`;
 
-  for(const a of ALLOCS){
-    const hkdAmt = S.monthly * a.pct;
-    const usdAmt = hkdAmt / S.fxRate;
-    const d  = S.data[a.ticker];
-    const pr = d?.price;
-    const sh = pr ? (usdAmt/pr).toFixed(4) : '...';
-    const ps = pr ? `$${pr.toFixed(2)}` : '—';
-    const cb = d ? chgBadge(d.change, d.changePct) : '';
+  for(const r of plan.rows){
+    const a = r.a, d = S.data[a.ticker];
+    const cb = d && d.change!=null ? chgBadge(d.change, d.changePct) : '';
     html += `<div class="arow">
       <div>
         <div class="stk" style="color:${a.color}">${a.ticker}</div>
         <div class="snm">${a.name}</div>
-        <div class="sprrow"><span class="spr">${ps}</span>${cb}</div>
+        <div class="sprrow">$<input class="ifield" type="number" step="0.01" inputmode="decimal"
+          value="${r.price ? r.price.toFixed(2) : ''}" placeholder="輸入現價"
+          onchange="setPrice('${a.ticker}', this.value)"
+          style="width:6.5rem;padding:.15rem .4rem;font-family:var(--fm);font-size:var(--text-xs)">${cb}</div>
       </div>
       <div style="text-align:right">
-        <div class="ausd">$${usdAmt.toFixed(0)}</div>
-        <div class="ahkd">HKD ${hkdAmt.toFixed(0)}</div>
-        <div class="ash">${sh} 股</div>
+        <div class="ausd">${r.price ? r.shares.toFixed(4)+' 股' : '—'}</div>
+        <div class="ahkd">≈ USD ${r.tradeVal.toFixed(2)}</div>
+        <div class="ash">佣金 ≈ USD ${r.comm.toFixed(2)}</div>
       </div>
-      <div class="abadge">${(a.pct*100).toFixed(0)}%</div>
+      <div class="abadge">${+(a.pct*100).toFixed(2)}%</div>
     </div>`;
   }
 
